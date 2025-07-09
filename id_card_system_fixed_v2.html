@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student ID Card Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .list-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item h3 {
+            margin-bottom: 5px;
+            color: #007bff;
+        }
+
+        .list-item p {
+            color: #6c757d;
+        }
+
+        .id-card {
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+
+        .id-card-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .id-card-header h2 {
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+
+        .id-card-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-info p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .student-info strong {
+            color: #007bff;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin-left: 20px;
+        }
+
+        .qr-code canvas {
+            border: 2px solid #007bff;
+            border-radius: 8px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .id-card, .id-card * {
+                visibility: visible;
+            }
+            .id-card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Student ID Card Management System</h1>
+            <p>Manage schools, classes, sections, and generate student ID cards with QR codes</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('schools')">Schools</button>
+            <button class="tab" onclick="showTab('classes')">Classes</button>
+            <button class="tab" onclick="showTab('sections')">Sections</button>
+            <button class="tab" onclick="showTab('students')">Students</button>
+            <button class="tab" onclick="showTab('idcards')">ID Cards</button>
+        </div>
+
+        <!-- Schools Tab -->
+        <div id="schools" class="tab-content active">
+            <h2>School Management</h2>
+            <form id="schoolForm">
+                <div class="form-group">
+                    <label for="schoolName">School Name:</label>
+                    <input type="text" id="schoolName" required>
+                </div>
+                <div class="form-group">
+                    <label for="schoolAddress">Address:</label>
+                    <input type="text" id="schoolAddress" required>
+                </div>
+                <div class="form-group">
+                    <label for="schoolPhone">Phone:</label>
+                    <input type="tel" id="schoolPhone" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add School</button>
+            </form>
+            
+            <div id="schoolsList"></div>
+        </div>
+
+        <!-- Classes Tab -->
+        <div id="classes" class="tab-content">
+            <h2>Class Management</h2>
+            <form id="classForm">
+                <div class="form-group">
+                    <label for="classSchool">Select School:</label>
+                    <select id="classSchool" required>
+                        <option value="">Select a school</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="className">Class Name:</label>
+                    <input type="text" id="className" placeholder="e.g., 10th Grade" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Class</button>
+            </form>
+            
+            <div id="classesList"></div>
+        </div>
+
+        <!-- Sections Tab -->
+        <div id="sections" class="tab-content">
+            <h2>Section Management</h2>
+            <form id="sectionForm">
+                <div class="form-group">
+                    <label for="sectionClass">Select Class:</label>
+                    <select id="sectionClass" required>
+                        <option value="">Select a class</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sectionName">Section Name:</label>
+                    <input type="text" id="sectionName" placeholder="e.g., A, B, C" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Section</button>
+            </form>
+            
+            <div id="sectionsList"></div>
+        </div>
+
+        <!-- Students Tab -->
+        <div id="students" class="tab-content">
+            <h2>Student Management</h2>
+            <form id="studentForm">
+                <div class="form-group">
+                    <label for="studentSection">Select Section:</label>
+                    <select id="studentSection" required>
+                        <option value="">Select a section</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="studentName">Student Name:</label>
+                            <input type="text" id="studentName" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="fatherName">Father's Name:</label>
+                            <input type="text" id="fatherName" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="rollNumber">Roll Number:</label>
+                            <input type="text" id="rollNumber" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="bloodGroup">Blood Group:</label>
+                            <select id="bloodGroup" required>
+                                <option value="">Select blood group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Student</button>
+            </form>
+            
+            <div id="studentsList"></div>
+        </div>
+
+        <!-- ID Cards Tab -->
+        <div id="idcards" class="tab-content">
+            <h2>Generate ID Cards</h2>
+            <div class="form-group">
+                <label for="idCardSection">Select Section:</label>
+                <select id="idCardSection">
+                    <option value="">Select a section</option>
+                </select>
+            </div>
+            <button onclick="generateAllCards()" class="btn btn-success">Generate All Cards</button>
+            
+            <div id="idCardsList"></div>
+        </div>
+    </div>
+
+    <!-- QR Code Detail Modal -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Student Details</h2>
+            <div id="qrStudentDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage (In production, this would be MongoDB)
+        let data = {
+            schools: [],
+            classes: [],
+            sections: [],
+            students: []
+        };
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('schoolData');
+            if (saved) {
+                data = JSON.parse(saved);
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('schoolData', JSON.stringify(data));
+        }
+
+        // Initialize app
+        function init() {
+            loadData();
+            updateDropdowns();
+            renderAll();
+        }
+
+        // Tab functionality
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // School Management
+        document.getElementById('schoolForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const school = {
+                id: Date.now().toString(),
+                name: document.getElementById('schoolName').value,
+                address: document.getElementById('schoolAddress').value,
+                phone: document.getElementById('schoolPhone').value
+            };
+            data.schools.push(school);
+            saveData();
+            updateDropdowns();
+            renderSchools();
+            this.reset();
+        });
+
+        // Class Management
+        document.getElementById('classForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const classData = {
+                id: Date.now().toString(),
+                schoolId: document.getElementById('classSchool').value,
+                name: document.getElementById('className').value
+            };
+            data.classes.push(classData);
+            saveData();
+            updateDropdowns();
+            renderClasses();
+            this.reset();
+        });
+
+        // Section Management
+        document.getElementById('sectionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const section = {
+                id: Date.now().toString(),
+                classId: document.getElementById('sectionClass').value,
+                name: document.getElementById('sectionName').value
+            };
+            data.sections.push(section);
+            saveData();
+            updateDropdowns();
+            renderSections();
+            this.reset();
+        });
+
+        // Student Management
+        document.getElementById('studentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const student = {
+                id: Date.now().toString(),
+                sectionId: document.getElementById('studentSection').value,
+                name: document.getElementById('studentName').value,
+                fatherName: document.getElementById('fatherName').value,
+                rollNumber: document.getElementById('rollNumber').value,
+                bloodGroup: document.getElementById('bloodGroup').value
+            };
+            data.students.push(student);
+            saveData();
+            renderStudents();
+            this.reset();
+        });
+
+        // Update dropdown options
+        function updateDropdowns() {
+            // Update school dropdown
+            const schoolSelect = document.getElementById('classSchool');
+            schoolSelect.innerHTML = '<option value="">Select a school</option>';
+            data.schools.forEach(school => {
+                schoolSelect.innerHTML += `<option value="${school.id}">${school.name}</option>`;
+            });
+
+            // Update class dropdown
+            const classSelect = document.getElementById('sectionClass');
+            classSelect.innerHTML = '<option value="">Select a class</option>';
+            data.classes.forEach(cls => {
+                const school = data.schools.find(s => s.id === cls.schoolId);
+                classSelect.innerHTML += `<option value="${cls.id}">${school.name} - ${cls.name}</option>`;
+            });
+
+            // Update section dropdowns
+            const sectionSelects = [document.getElementById('studentSection'), document.getElementById('idCardSection')];
+            sectionSelects.forEach(select => {
+                select.innerHTML = '<option value="">Select a section</option>';
+                data.sections.forEach(section => {
+                    const cls = data.classes.find(c => c.id === section.classId);
+                    const school = data.schools.find(s => s.id === cls.schoolId);
+                    select.innerHTML += `<option value="${section.id}">${school.name} - ${cls.name} - ${section.name}</option>`;
+                });
+            });
+        }
+
+        // Render functions
+        function renderSchools() {
+            const container = document.getElementById('schoolsList');
+            container.innerHTML = '<h3>Schools</h3>';
+            data.schools.forEach(school => {
+                container.innerHTML += `
+                    <div class="list-item">
+                        <div>
+                            <h3>${school.name}</h3>
+                            <p>${school.address} | ${school.phone}</p>
+                        </div>
+                        <button class="btn btn-danger" onclick="deleteSchool('${school.id}')">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderClasses() {
+            const container = document.getElementById('classesList');
+            container.innerHTML = '<h3>Classes</h3>';
+            data.classes.forEach(cls => {
+                const school = data.schools.find(s => s.id === cls.schoolId);
+                container.innerHTML += `
+                    <div class="list-item">
+                        <div>
+                            <h3>${cls.name}</h3>
+                            <p>School: ${school ? school.name : 'Unknown'}</p>
+                        </div>
+                        <button class="btn btn-danger" onclick="deleteClass('${cls.id}')">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderSections() {
+            const container = document.getElementById('sectionsList');
+            container.innerHTML = '<h3>Sections</h3>';
+            data.sections.forEach(section => {
+                const cls = data.classes.find(c => c.id === section.classId);
+                const school = cls ? data.schools.find(s => s.id === cls.schoolId) : null;
+                container.innerHTML += `
+                    <div class="list-item">
+                        <div>
+                            <h3>Section ${section.name}</h3>
+                            <p>Class: ${cls ? cls.name : 'Unknown'} | School: ${school ? school.name : 'Unknown'}</p>
+                        </div>
+                        <button class="btn btn-danger" onclick="deleteSection('${section.id}')">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderStudents() {
+            const container = document.getElementById('studentsList');
+            container.innerHTML = '<h3>Students</h3>';
+            data.students.forEach(student => {
+                const section = data.sections.find(s => s.id === student.sectionId);
+                const cls = section ? data.classes.find(c => c.id === section.classId) : null;
+                const school = cls ? data.schools.find(s => s.id === cls.schoolId) : null;
+                container.innerHTML += `
+                    <div class="list-item">
+                        <div>
+                            <h3>${student.name} (Roll: ${student.rollNumber})</h3>
+                            <p>Father: ${student.fatherName} | Blood Group: ${student.bloodGroup}</p>
+                            <p>Section: ${section ? section.name : 'Unknown'} | Class: ${cls ? cls.name : 'Unknown'}</p>
+                        </div>
+                        <button class="btn btn-danger" onclick="deleteStudent('${student.id}')">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        // Delete functions
+        function deleteSchool(id) {
+            data.schools = data.schools.filter(s => s.id !== id);
+            saveData();
+            updateDropdowns();
+            renderSchools();
+        }
+
+        function deleteClass(id) {
+            data.classes = data.classes.filter(c => c.id !== id);
+            saveData();
+            updateDropdowns();
+            renderClasses();
+        }
+
+        function deleteSection(id) {
+            data.sections = data.sections.filter(s => s.id !== id);
+            saveData();
+            updateDropdowns();
+            renderSections();
+        }
+
+        function deleteStudent(id) {
+            data.students = data.students.filter(s => s.id !== id);
+            saveData();
+            renderStudents();
+        }
+
+        // ID Card Generation
+        function generateAllCards() {
+            const sectionId = document.getElementById('idCardSection').value;
+            if (!sectionId) {
+                alert('Please select a section');
+                return;
+            }
+
+            const students = data.students.filter(s => s.sectionId === sectionId);
+            const section = data.sections.find(s => s.id === sectionId);
+            const cls = data.classes.find(c => c.id === section.classId);
+            const school = data.schools.find(s => s.id === cls.schoolId);
+
+            const container = document.getElementById('idCardsList');
+            container.innerHTML = '';
+
+            students.forEach(student => {
+                const cardHtml = generateIDCard(student, section, cls, school);
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        function generateIDCard(student, section, cls, school) {
+            const studentData = {
+                name: student.name,
+                fatherName: student.fatherName,
+                rollNumber: student.rollNumber,
+                bloodGroup: student.bloodGroup,
+                class: cls.name,
+                section: section.name,
+                school: school.name
+            };
+
+            const qrData = JSON.stringify(studentData);
+            const cardId = `card-${student.id}`;
+            const qrId = `qr-${student.id}`;
+
+            setTimeout(() => {
+                const qrContainer = document.getElementById(qrId);
+                if (qrContainer) {
+                    qrContainer.innerHTML = ""; // Clear any existing QR
+                    new QRCode(qrContainer, {
+                        text: qrData,
+                        width: 100,
+                        height: 100
+                    });
+                }
+            }, 100);
+
+            return `
+                <div class="id-card" id="${cardId}">
+                    <div class="id-card-header">
+                        <h2>${school.name}</h2>
+                        <p>Student ID Card</p>
+                    </div>
+                    <div class="id-card-body">
+                        <div class="student-info">
+                            <p><strong>Name:</strong> ${student.name}</p>
+                            <p><strong>Father's Name:</strong> ${student.fatherName}</p>
+                            <p><strong>Roll Number:</strong> ${student.rollNumber}</p>
+                            <p><strong>Class:</strong> ${cls.name}</p>
+                            <p><strong>Section:</strong> ${section.name}</p>
+                            <p><strong>Blood Group:</strong> ${student.bloodGroup}</p>
+                        </div>
+                        <div class="qr-code">
+                            <div id="${qrId}" onclick="showQRDetails('${qrData}')"></div>
+                            <p style="font-size: 12px; margin-top: 5px;">Scan for details</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="btn btn-primary" onclick="printCard('${cardId}')">Print Card</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function printCard(cardId) {
+            const printContent = document.getElementById(cardId);
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>ID Card</title>');
+            printWindow.document.write('<style>');
+            printWindow.document.write(`
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .id-card { border: 2px solid #007bff; border-radius: 15px; padding: 20px; max-width: 400px; }
+                .id-card-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #007bff; }
+                .id-card-header h2 { color: #007bff; margin-bottom: 5px; }
+                .id-card-body { display: flex; justify-content: space-between; align-items: flex-start; }
+                .student-info { flex: 1; }
+                .student-info p { margin-bottom: 8px; font-size: 14px; }
+                .student-info strong { color: #007bff; }
+                .qr-code { text-align: center; margin-left: 20px; }
+                .qr-code canvas { border: 2px solid #007bff; border-radius: 8px; }
+                button { display: none; }
+            `);
+            printWindow.document.write('</style></head><body>');
+            printWindow.document.write(printContent.innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function showQRDetails(qrData) {
+            const studentData = JSON.parse(qrData);
+            const modal = document.getElementById('qrModal');
+            const details = document.getElementById('qrStudentDetails');
+            
+            details.innerHTML = `
+                <div class="student-info">
+                    <p><strong>Name:</strong> ${studentData.name}</p>
+                    <p><strong>Father's Name:</strong> ${studentData.fatherName}</p>
+                    <p><strong>Roll Number:</strong> ${studentData.rollNumber}</p>
+                    <p><strong>Class:</strong> ${studentData.class}</p>
+                    <p><strong>Section:</strong> ${studentData.section}</p>
+                    <p><strong>Blood Group:</strong> ${studentData.bloodGroup}</p>
+                    <p><strong>School:</strong> ${studentData.school}</p>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('qrModal').style.display = 'none';
+        }
+
+        function renderAll() {
+            renderSchools();
+            renderClasses();
+            renderSections();
+            renderStudents();
+        }
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
